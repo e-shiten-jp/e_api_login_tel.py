@@ -23,10 +23,10 @@ e_api_account_info.txt
 
 出力ファイル：
 
-e_api_info_p_no.txt
+e_api_info_p_no.txt  
   現在のp_noを保存します。
 
-e_api_login_response.txt
+e_api_login_response.txt  
   ログインで取得した応答を保存します。
 
 口座情報を読み込み、ログインのみを行います。ログアウトはしません。
