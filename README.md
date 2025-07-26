@@ -27,9 +27,8 @@ APIバージョン： v4r7で動作確認
 使い方と動作の概略
 
 １）定義ファイルを事前に設定してください。
-
-e_api_account_info.txt  
-ユーザーID、パスワード、第２パスワード、接続先URL、sJsonOfmtを設定します。
+	e_api_account_info.txt  
+	ユーザーID、パスワード、第２パスワード、接続先URL、sJsonOfmtを設定します。
 
 ２）電話認証を行います。
 
