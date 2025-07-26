@@ -4,10 +4,15 @@
 # 2021.06.24,   yo.
 # 2022.10.20 reviced,   yo.
 # 2025.07.25 reviced,   yo.
+
 # Python 3.11.2 / debian12
 # API v4r7 で動作確認
 # 立花証券ｅ支店ＡＰＩ利用のサンプルコード
-# ログインして、ログアウトするだけです。
+# ログインして、仮想URL（１日券）を取得します。
+#
+# 使い方
+# 設定ファイル： e_api_account_info.txt
+# ユーザーID、パスワード等を設定してからこのプログラムを走らせてください。
 
 import urllib3
 import datetime
@@ -29,17 +34,28 @@ class class_req :
         self.str_value = func_check_json_dquat(work_value)
 
 
-# ログイン属性クラス
+# 口座属性クラス
 class class_def_account_property:
     def __init__(self):
-        self.p_no = 0               # 累積p_no
-        self.sUserId = ''           # request用仮想URL
-        self.sPassword = ''         # master用仮想URL
-        self.sSecondPassword = ''   # price用仮想URL
-        self.sUrl = ''              # event用仮想URL
+        self.sUserId = ''           # userid
+        self.sPassword = ''         # password
+        self.sSecondPassword = ''   # 第２パスワード
+        self.sUrl = ''              # 接続先URL
         self.sJsonOfmt = 5          # 返り値の表示形式指定
-        
 
+
+# ログイン属性クラス
+class class_def_login_property:
+    def __init__(self):
+        self.p_no = 0               # 累積p_no
+        self.sUrlRequest = ''       # request用仮想URL
+        self.sUrlMaster = ''        # master用仮想URL
+        self.sUrlPrice = ''         # price用仮想URL
+        self.sUrlEvent = ''         # event用仮想URL
+        self.sZyoutoekiKazeiC = ''  # 8.譲渡益課税区分    1：特定  3：一般  5：NISA     ログインの返信データで設定済み。 
+        self.sSecondPassword = ''   # 22.第二パスワード  APIでは第２暗証番号を省略できない。 関連資料:「立花証券・e支店・API、インターフェース概要」の「3-2.ログイン、ログアウト」参照
+        self.sJsonOfmt = ''         # 返り値の表示形式指定
+ 
 
 # 機能: システム時刻を"p_sd_date"の書式の文字列で返す。
 # 返値: "p_sd_date"の書式の文字列
@@ -274,6 +290,21 @@ def func_write_to_file(str_fname_output, str_data):
         print('Can not Write!!!')
         print(type(e))
 
+
+# 機能: p_noを保存するためのjson形式のテキストデータを作成します。
+# 引数1: 出力ファイル名
+# 引数2: 保存するp_no
+# 備考:
+def func_save_p_no(str_fname_output, int_p_no):
+    # "p_no"を保存する。
+    str_info_p_no = '{\n'
+    str_info_p_no = str_info_p_no + '\t' + '"p_no":"' + str(int_p_no) + '"\n'
+    str_info_p_no = str_info_p_no + '}\n'
+    func_write_to_file(str_fname_output, str_info_p_no)
+    print('現在の"p_no"を保存しました。 \tファイル名: ', str_fname_output )            
+
+       
+
 #--- 以上 共通コード -------------------------------------------------
 
 
@@ -292,10 +323,12 @@ if __name__ == "__main__":
     # --- 以上設定項目 -------------------------------------------------------------------------
     
     my_account_property = class_def_account_property()
+    my_login_property = class_def_login_property()
+
     # 口座情報をファイルから読み込む。
     func_get_acconut_info(fname_account_info, my_account_property)
     
-    my_account_property.p_no = 1          # p_noの初期値をセット。ログイン時は、1。
+    my_login_property.p_no = 1          # p_noの初期値をセット。ログイン時は、1。
     
     # ID、パスワード、第２パスワードのURLエンコードをチェックして変換
     my_userid = func_replace_urlecnode(my_account_property.sUserId)
@@ -314,7 +347,7 @@ if __name__ == "__main__":
     str_p_sd_date = func_p_sd_date(datetime.datetime.now())     # システム時刻を所定の書式で取得
     
     str_key = '"p_no"'
-    str_value = func_check_json_dquat(str(my_account_property.p_no))
+    str_value = func_check_json_dquat(str(my_login_property.p_no))
     #req_item.append(class_req())
     req_item[-1].add_data(str_key, str_value)
 
@@ -367,12 +400,12 @@ if __name__ == "__main__":
     # p_erronは、マニュアル「立花証券・ｅ支店・ＡＰＩ（ｖ〇ｒ〇）、REQUEST I/F、利用方法、データ仕様」を参照ください。
     if int_p_errno >= 0 :
         int_sResultCode = int(json_response.get('sResultCode'))
-
-
     # sResultCodeは、マニュアル
     # 「立花証券・ｅ支店・ＡＰＩ（ｖ〇ｒ〇）、REQUEST I/F、注文入力機能引数項目仕様」
     # (api_request_if_order_vOrO.pdf)
     # の p13/42 「6.メッセージ一覧」を参照ください。
+
+
     if int_p_errno ==  0 and int_sResultCode == 0:    # ログインエラーでない場合
         # ---------------------------------------------
         # ログインでの注意点
@@ -386,12 +419,8 @@ if __name__ == "__main__":
             my_account_property.login_status = True           # login状態 true
 
             # "p_no"を保存する。
-            str_info_p_no = '{\n'
-            str_info_p_no = str_info_p_no + '\t' + '"p_no":"' + str(my_account_property.p_no) + '"\n'
-            str_info_p_no = str_info_p_no + '}\n'
-            func_write_to_file(str_fname_info_p_no, str_info_p_no)
-            print('現在の"p_no"を保存しました。 \tファイル名: ', str_fname_info_p_no )            
-
+            func_save_p_no(str_fname_info_p_no, my_login_property.p_no)
+            
             # ログイン情報をファイルに書き込む
             func_write_to_file(str_fname_login_response, str_api_response)
             print('loginレスポンスを保存しました。\tファイル名: ', str_fname_login_response )
