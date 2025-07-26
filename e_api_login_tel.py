@@ -278,6 +278,31 @@ def func_get_acconut_info(fname, class_account_property):
     # ブラウザで見や易い形式」且つ「引数項目名称」で応答を返す値指定
 
 
+# 機能： ログイン情報をファイルから取得する
+# 引数1: ファイル名
+# 引数2: ログインデータ型（class_def_login_property型）
+def func_get_login_info(str_fname, class_login_property):
+    str_login_respons = func_read_from_file(str_fname)
+    dic_login_respons = json.loads(str_login_respons)
+    class_login_property.sUrlRequest = dic_login_respons.get('sUrlRequest')                # request用仮想URL
+    class_login_property.sUrlMaster = dic_login_respons.get('sUrlMaster')                  # master用仮想URL
+    class_login_property.sUrlPrice = dic_login_respons.get('sUrlPrice')                    # price用仮想URL
+    class_login_property.sUrlEvent = dic_login_respons.get('sUrlEvent')                    # event用仮想URL
+    class_login_property.sUrlEventWebSocket = dic_login_respons.get('sUrlEventWebSocket')  # webxocket用仮想URL
+    class_login_property.sZyoutoekiKazeiC = dic_login_respons.get('sZyoutoekiKazeiC')      # 8.譲渡益課税区分    1：特定  3：一般  5：NISA     ログインの返信データで設定済み。 
+    
+
+# 機能： p_noをファイルから取得する
+# 引数1: ファイル名
+# 引数2: login情報（class_def_login_property型）データ
+def func_get_p_no(fname, class_login_property):
+    str_p_no_info = func_read_from_file(fname)
+    # JSON形式の文字列を辞書型で取り出す
+    json_p_no_info = json.loads(str_p_no_info)
+    class_login_property.p_no = int(json_p_no_info.get('p_no'))
+        
+    
+
 # 機能: ファイルに書き込む
 # 引数1: 出力ファイル名
 # 引数2: 出力するデータ
@@ -302,7 +327,6 @@ def func_save_p_no(str_fname_output, int_p_no):
     str_info_p_no = str_info_p_no + '}\n'
     func_write_to_file(str_fname_output, str_info_p_no)
     print('現在の"p_no"を保存しました。 \tファイル名: ', str_fname_output )            
-
        
 
 #--- 以上 共通コード -------------------------------------------------
@@ -318,8 +342,8 @@ def func_save_p_no(str_fname_output, int_p_no):
 if __name__ == "__main__":
     # --- ファイル名等を設定 ------------------------------------------------------------------
     fname_account_info = "e_api_account_info.txt"
-    str_fname_login_response = "e_api_login_response.txt"
-    str_fname_info_p_no = "e_api_info_p_no.txt"
+    fname_login_response = "e_api_login_response.txt"
+    fname_info_p_no = "e_api_info_p_no.txt"
     # --- 以上設定項目 -------------------------------------------------------------------------
     
     my_account_property = class_def_account_property()
@@ -419,11 +443,11 @@ if __name__ == "__main__":
             my_account_property.login_status = True           # login状態 true
 
             # "p_no"を保存する。
-            func_save_p_no(str_fname_info_p_no, my_login_property.p_no)
+            func_save_p_no(fname_info_p_no, my_login_property.p_no)
             
             # ログイン情報をファイルに書き込む
-            func_write_to_file(str_fname_login_response, str_api_response)
-            print('loginレスポンスを保存しました。\tファイル名: ', str_fname_login_response )
+            func_write_to_file(fname_login_response, str_api_response)
+            print('loginレスポンスを保存しました。\tファイル名: ', fname_login_response )
         else :
             print('契約締結前書面が未読です。')
             print('ブラウザーで標準Webにログインして確認してください。')
