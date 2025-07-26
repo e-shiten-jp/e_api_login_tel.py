@@ -13,6 +13,11 @@
 # 使い方
 # 設定ファイル： e_api_account_info.txt
 # ユーザーID、パスワード等を設定してからこのプログラムを走らせてください。
+# 
+# 取得した仮想urlは、fname_login_response（ = "e_api_login_response.txt"）で
+# 定義したファイルに保存します。
+# p_noは、fname_info_p_no（ = "e_api_info_p_no.txt"）で定義したファイルに
+# 保存します。
 
 import urllib3
 import datetime
