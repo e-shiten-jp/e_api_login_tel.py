@@ -8,16 +8,23 @@
 # Python 3.11.2 / debian12
 # API v4r7 で動作確認
 # 立花証券ｅ支店ＡＰＩ利用のサンプルコード
-# ログインして、仮想URL（１日券）を取得します。
+# ログインして、仮想URL（1日券）を取得します。
 #
-# 使い方
+# 利用方法: 
 # 設定ファイル： e_api_account_info.txt
 # ユーザーID、パスワード等を設定してからこのプログラムを走らせてください。
 # 
 # 取得した仮想urlは、fname_login_response（ = "e_api_login_response.txt"）で
 # 定義したファイルに保存します。
+#
 # p_noは、fname_info_p_no（ = "e_api_info_p_no.txt"）で定義したファイルに
 # 保存します。
+#
+# == ご注意: ========================================
+#   本番環境にに接続した場合、実際に市場に注文が出ます。
+#   市場で約定した場合取り消せません。
+# ==================================================
+#
 
 import urllib3
 import datetime
@@ -47,8 +54,7 @@ class class_def_account_property:
         self.sSecondPassword = ''   # 第２パスワード
         self.sUrl = ''              # 接続先URL
         self.sJsonOfmt = 5          # 返り値の表示形式指定
-
-
+        
 # ログイン属性クラス
 class class_def_login_property:
     def __init__(self):
@@ -58,9 +64,11 @@ class class_def_login_property:
         self.sUrlPrice = ''         # price用仮想URL
         self.sUrlEvent = ''         # event用仮想URL
         self.sZyoutoekiKazeiC = ''  # 8.譲渡益課税区分    1：特定  3：一般  5：NISA     ログインの返信データで設定済み。 
+        self.sSinyouKouzaKubun = '' # 信用取引口座開設区分  0：未開設  1：開設
         self.sSecondPassword = ''   # 22.第二パスワード  APIでは第２暗証番号を省略できない。 関連資料:「立花証券・e支店・API、インターフェース概要」の「3-2.ログイン、ログアウト」参照
         self.sJsonOfmt = ''         # 返り値の表示形式指定
- 
+        
+        
 
 # 機能: システム時刻を"p_sd_date"の書式の文字列で返す。
 # 返値: "p_sd_date"の書式の文字列
@@ -190,7 +198,7 @@ def func_replace_urlecnode( str_input ):
             str_replace = '%7E'       #「~」 → 「%7E」
         else :
             str_replace = str_char
-        str_encode = str_encode + str_replace
+        str_encode = str_encode + str_replace        
     return str_encode
 
 
@@ -211,6 +219,7 @@ def func_read_from_file(str_fname):
     except IOError as e:
         print('Can not Write!!!')
         print(type(e))
+
 
 
 # 機能： API問合せ文字列を作成し返す。
@@ -246,10 +255,14 @@ def func_api_req(str_url):
     # 取得したデータを、json.loadsを利用できるようにstr型に変換する。日本語はshift-jis。
     bytes_reqdata = req.data
     str_shiftjis = bytes_reqdata.decode("shift-jis", errors="ignore")
+
     print('返信文字列＝')
     print(str_shiftjis)
 
-    return str_shiftjis
+    # JSON形式の文字列を辞書型で取り出す
+    json_req = json.loads(str_shiftjis)
+
+    return json_req
 
 
 # 機能: class_req型データをjson形式の文字列に変換する。
@@ -265,7 +278,7 @@ def func_make_json_format(work_class_req):
 
 
 # 機能： アカウント情報をファイルから取得する
-# 引数1: ファイル名
+# 引数1: 口座情報を保存したファイル名
 # 引数2: 口座情報（class_def_account_property型）データ
 def func_get_acconut_info(fname, class_account_property):
     str_account_info = func_read_from_file(fname)
@@ -284,21 +297,22 @@ def func_get_acconut_info(fname, class_account_property):
 
 
 # 機能： ログイン情報をファイルから取得する
-# 引数1: ファイル名
+# 引数1: ログイン情報を保存したファイル名（fname_login_response = "e_api_login_response.txt"）
 # 引数2: ログインデータ型（class_def_login_property型）
-def func_get_login_info(str_fname, class_login_property):
+def func_get_login_info(str_fname, my_login_property):
     str_login_respons = func_read_from_file(str_fname)
     dic_login_respons = json.loads(str_login_respons)
-    class_login_property.sUrlRequest = dic_login_respons.get('sUrlRequest')                # request用仮想URL
-    class_login_property.sUrlMaster = dic_login_respons.get('sUrlMaster')                  # master用仮想URL
-    class_login_property.sUrlPrice = dic_login_respons.get('sUrlPrice')                    # price用仮想URL
-    class_login_property.sUrlEvent = dic_login_respons.get('sUrlEvent')                    # event用仮想URL
-    class_login_property.sUrlEventWebSocket = dic_login_respons.get('sUrlEventWebSocket')  # webxocket用仮想URL
-    class_login_property.sZyoutoekiKazeiC = dic_login_respons.get('sZyoutoekiKazeiC')      # 8.譲渡益課税区分    1：特定  3：一般  5：NISA     ログインの返信データで設定済み。 
-    
+    my_login_property.sUrlRequest = dic_login_respons.get('sUrlRequest')                # request用仮想URL
+    my_login_property.sUrlMaster = dic_login_respons.get('sUrlMaster')                  # master用仮想URL
+    my_login_property.sUrlPrice = dic_login_respons.get('sUrlPrice')                    # price用仮想URL
+    my_login_property.sUrlEvent = dic_login_respons.get('sUrlEvent')                    # event用仮想URL
+    my_login_property.sUrlEventWebSocket = dic_login_respons.get('sUrlEventWebSocket')  # webxocket用仮想URL
+    my_login_property.sZyoutoekiKazeiC = dic_login_respons.get('sZyoutoekiKazeiC')      # 8.譲渡益課税区分    1：特定  3：一般  5：NISA     ログインの返信データで設定済み。 
+    my_login_property.sZyoutoekiKazeiC = dic_login_respons.get('sSinyouKouzaKubun')     # 信用取引口座開設区分  0：未開設  1：開設     ログインの返信データで設定済み。 
+
 
 # 機能： p_noをファイルから取得する
-# 引数1: ファイル名
+# 引数1: p_noを保存したファイル名（fname_info_p_no = "e_api_info_p_no.txt"）
 # 引数2: login情報（class_def_login_property型）データ
 def func_get_p_no(fname, class_login_property):
     str_p_no_info = func_read_from_file(fname)
@@ -307,7 +321,6 @@ def func_get_p_no(fname, class_login_property):
     class_login_property.p_no = int(json_p_no_info.get('p_no'))
         
     
-
 # 機能: ファイルに書き込む
 # 引数1: 出力ファイル名
 # 引数2: 出力するデータ
@@ -322,7 +335,7 @@ def func_write_to_file(str_fname_output, str_data):
 
 
 # 機能: p_noを保存するためのjson形式のテキストデータを作成します。
-# 引数1: 出力ファイル名
+# 引数1: p_noを保存するファイル名（fname_info_p_no = "e_api_info_p_no.txt"）
 # 引数2: 保存するp_no
 # 備考:
 def func_save_p_no(str_fname_output, int_p_no):
@@ -331,13 +344,31 @@ def func_save_p_no(str_fname_output, int_p_no):
     str_info_p_no = str_info_p_no + '\t' + '"p_no":"' + str(int_p_no) + '"\n'
     str_info_p_no = str_info_p_no + '}\n'
     func_write_to_file(str_fname_output, str_info_p_no)
-    print('現在の"p_no"を保存しました。 \tファイル名: ', str_fname_output )            
-       
+    print('現在の"p_no"を保存しました。 p_no =', int_p_no)            
+    print('ファイル名:', str_fname_output)
 
 #--- 以上 共通コード -------------------------------------------------
 
+# 機能: login用のAPI問合せ。
+# 返値: API応答（string型、json形式）
+# 第１引数： URL文字列。
+# 備考: APIに接続し、requestの文字列を送信し、応答データをstring型で返す。
+def func_api_req_login(str_url): 
+    print('送信文字列＝')
+    print(str_url)  # 送信する文字列
 
+    # APIに接続
+    http = urllib3.PoolManager()
+    req = http.request('GET', str_url)
+    print("req.status= ", req.status )
 
+    # 取得したデータを、json.loadsを利用できるようにstr型に変換する。日本語はshift-jis。
+    bytes_reqdata = req.data
+    str_shiftjis = bytes_reqdata.decode("shift-jis", errors="ignore")
+    print('返信文字列＝')
+    print(str_shiftjis)
+
+    return str_shiftjis
 
     
 # ======================================================================================================
@@ -415,20 +446,20 @@ if __name__ == "__main__":
     # ログインはTrue。それ以外はFalse。
     # このプログラムでの仕様。APIの仕様ではない。
         
-    # API問合せ
-    str_api_response = func_api_req(str_url)
+    # login用API問合せ（api応答をjson形式のテキストで返すだけ。）
+    str_api_response = func_api_req_login(str_url)
     # 戻り値の解説は、マニュアル「立花証券・ｅ支店・ＡＰＩ（ｖ〇）、REQUEST I/F、機能毎引数項目仕様」
     # p2/43 No.2 引数名:CLMAuthLoginAck を参照してください。
 
     # apiの返り値（JSON形式の文字列）を辞書型で取り出す
-    json_response = json.loads(str_api_response)
+    dic_return = json.loads(str_api_response)
 
 
     # 以下、ログインの判定とログイン情報の保存 ------------
-    int_p_errno = int(json_response.get('p_errno'))
+    int_p_errno = int(dic_return.get('p_errno'))
     # p_erronは、マニュアル「立花証券・ｅ支店・ＡＰＩ（ｖ〇ｒ〇）、REQUEST I/F、利用方法、データ仕様」を参照ください。
     if int_p_errno >= 0 :
-        int_sResultCode = int(json_response.get('sResultCode'))
+        int_sResultCode = int(dic_return.get('sResultCode'))
     # sResultCodeは、マニュアル
     # 「立花証券・ｅ支店・ＡＰＩ（ｖ〇ｒ〇）、REQUEST I/F、注文入力機能引数項目仕様」
     # (api_request_if_order_vOrO.pdf)
@@ -443,7 +474,7 @@ if __name__ == "__main__":
         # 「int_p_errno = 0 And int_sResultCode = 0」で、
         # sUrlRequest=""、sUrlEvent="" が返されログインできない。
         # ---------------------------------------------
-        if len(json_response.get('sUrlRequest')) > 0 :
+        if len(dic_return.get('sUrlRequest')) > 0 :
             # ログイン属性クラスに取得した値をセット
             my_account_property.login_status = True           # login状態 true
 
@@ -460,8 +491,8 @@ if __name__ == "__main__":
     else :  # ログインに問題があった場合
         my_account_property.login_status = False           # login状態 false
         print("ログインに失敗しました。")# システム時刻を所定の書式で取得
-        print('p_errno:', json_response.get('p_errno'))
-        print('p_err:', json_response.get('p_err'))
-        print('sResultCode:', json_response.get('sResultCode'))
-        print('sResultText:', json_response.get('sResultText'))
+        print('p_errno:', dic_return.get('p_errno'))
+        print('p_err:', dic_return.get('p_err'))
+        print('sResultCode:', dic_return.get('sResultCode'))
+        print('sResultText:', dic_return.get('sResultText'))
         print()
