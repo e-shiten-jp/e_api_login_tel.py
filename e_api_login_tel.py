@@ -51,23 +51,45 @@ class class_def_account_property:
     def __init__(self):
         self.sUserId = ''           # userid
         self.sPassword = ''         # password
-        self.sSecondPassword = ''   # 第２パスワード
+        self.sSecondPassword = ''   # 第2パスワード
         self.sUrl = ''              # 接続先URL
         self.sJsonOfmt = 5          # 返り値の表示形式指定
         
 # ログイン属性クラス
 class class_def_login_property:
     def __init__(self):
-        self.p_no = 0               # 累積p_no
-        self.sUrlRequest = ''       # request用仮想URL
-        self.sUrlMaster = ''        # master用仮想URL
-        self.sUrlPrice = ''         # price用仮想URL
-        self.sUrlEvent = ''         # event用仮想URL
-        self.sZyoutoekiKazeiC = ''  # 8.譲渡益課税区分    1：特定  3：一般  5：NISA     ログインの返信データで設定済み。 
-        self.sSinyouKouzaKubun = '' # 信用取引口座開設区分  0：未開設  1：開設
-        self.sSecondPassword = ''   # 22.第二パスワード  APIでは第２暗証番号を省略できない。 関連資料:「立花証券・e支店・API、インターフェース概要」の「3-2.ログイン、ログアウト」参照
-        self.sJsonOfmt = ''         # 返り値の表示形式指定
-        
+        self.p_no = 0                       # 累積p_no
+        self.sJsonOfmt = ''                 # 返り値の表示形式指定
+        self.sResultCode = ''               # 結果コード
+        self.sResultText = ''               # 結果テキスト
+        self.sZyoutoekiKazeiC = ''          # 譲渡益課税区分  1：特定  3：一般  5：NISA
+        self.sSecondPasswordOmit = ''       # 暗証番号省略有無Ｃ  22.第二パスワード  APIでは第2暗証番号を省略できない。 関連資料:「立花証券・e支店・API、インターフェース概要」の「3-2.ログイン、ログアウト」参照
+        self.sLastLoginDate = ''            # 最終ログイン日時
+        self.sSogoKouzaKubun = ''           # 総合口座開設区分  0：未開設  1：開設
+        self.sHogoAdukariKouzaKubun = ''    # 保護預り口座開設区分  0：未開設  1：開設
+        self.sFurikaeKouzaKubun = ''        # 振替決済口座開設区分  0：未開設  1：開設
+        self.sGaikokuKouzaKubun = ''        # 外国口座開設区分  0：未開設  1：開設
+        self.sMRFKouzaKubun = ''            # ＭＲＦ口座開設区分  0：未開設  1：開設
+        self.sTokuteiKouzaKubunGenbutu = '' # 特定口座区分現物  0：一般  1：特定源泉徴収なし  2：特定源泉徴収あり
+        self.sTokuteiKouzaKubunSinyou = ''  # 特定口座区分信用  0：一般  1：特定源泉徴収なし  2：特定源泉徴収あり
+        self.sTokuteiKouzaKubunTousin = ''  # 特定口座区分投信  0：一般  1：特定源泉徴収なし  2：特定源泉徴収あり
+        self.sTokuteiHaitouKouzaKubun = ''  # 配当特定口座区分  0：未開設  1：開設
+        self.sTokuteiKanriKouzaKubun = ''   # 特定管理口座開設区分  0：未開設  1：開設
+        self.sSinyouKouzaKubun = ''         # 信用取引口座開設区分  0：未開設  1：開設
+        self.sSakopKouzaKubun = ''          # 先物ＯＰ口座開設区分  0：未開設  1：開設
+        self.sMMFKouzaKubun = ''            # ＭＭＦ口座開設区分  0：未開設  1：開設
+        self.sTyukokufKouzaKubun = ''       # 中国Ｆ口座開設区分  0：未開設  1：開設
+        self.sKawaseKouzaKubun = ''         # 為替保証金口座開設区分  0：未開設  1：開設
+        self.sHikazeiKouzaKubun = ''        # 非課税口座開設区分  0：未開設  1：開設  ※ＮＩＳＡ口座の開設有無を示す。
+        self.sKinsyouhouMidokuFlg = ''      # 金商法交付書面未読フラグ  1：未読（標準Ｗｅｂを起動し書面確認実行必須）  0：既読  ※未読の場合、ｅ支店・ＡＰＩは利用不可のため    仮想ＵＲＬは発行されず""を設定。  ※既読の場合、ｅ支店・ＡＰＩは利用可能となり    仮想ＵＲＬを発行し設定。  
+        self.sUrlRequest = ''               # 仮想URL（REQUEST)  業務機能    （REQUEST I/F）仮想URL
+        self.sUrlMaster = ''                # 仮想URL（MASTER)  マスタ機能  （REQUEST I/F）仮想URL
+        self.sUrlPrice = ''                 # 仮想URL（PRICE)  時価情報機能（REQUEST I/F）仮想URL
+        self.sUrlEvent = ''                 # 仮想URL（EVENT)  注文約定通知（EVENT I/F）仮想URL
+        self.sUrlEventWebSocket = ''        # 仮想URL（EVENT-WebSocket)  注文約定通知（EVENT I/F WebSocket版）仮想URL
+        self.sUpdateInformWebDocument = ''  # 交付書面更新予定日  標準Ｗｅｂの交付書面更新予定日決定後、該当日付を設定。  【注意】参照
+        self.sUpdateInformAPISpecFunction = ''  # ｅ支店・ＡＰＩリリース予定日  ｅ支店・ＡＰＩリリース予定日決定後、該当日付を設定。  【注意】参照
+
         
 
 # 機能: システム時刻を"p_sd_date"の書式の文字列で返す。
@@ -205,7 +227,7 @@ def func_replace_urlecnode( str_input ):
 # 機能： ファイルから文字情報を読み込み、その文字列を返す。
 # 戻り値： 文字列
 # 第１引数： ファイル名
-# 備考：　json形式のファイルを想定。
+# 備考： json形式のファイルを想定。
 def func_read_from_file(str_fname):
     str_read = ''
     try:
@@ -225,7 +247,7 @@ def func_read_from_file(str_fname):
 # 機能： API問合せ文字列を作成し返す。
 # 戻り値： api問合せのurl文字列
 # 第１引数： ログインは、Trueをセット。それ以外はFalseをセット。
-# 第２引数： ログインは、APIのurlをセット。それ以外はログインで返された仮想url（'sUrlRequest'等）の値をセット。
+# 第2引数： ログインは、APIのurlをセット。それ以外はログインで返された仮想url（'sUrlRequest'等）の値をセット。
 # 第３引数： 要求項目のデータセット。クラスの配列として受取る。
 def func_make_url_request(auth_flg, \
                           url_target, \
@@ -292,24 +314,48 @@ def func_get_acconut_info(fname, class_account_property):
 
     # 返り値の表示形式指定
     class_account_property.sJsonOfmt = json_account_info.get('sJsonOfmt')
-    # "5"は "1"（1ビット目ＯＮ）と”4”（3ビット目ＯＮ）の指定となり
+    # "5"は "1"（1ビット目ON）と”4”（3ビット目ON）の指定となり
     # ブラウザで見や易い形式」且つ「引数項目名称」で応答を返す値指定
 
 
 # 機能： ログイン情報をファイルから取得する
 # 引数1: ログイン情報を保存したファイル名（fname_login_response = "e_api_login_response.txt"）
 # 引数2: ログインデータ型（class_def_login_property型）
-def func_get_login_info(str_fname, my_login_property):
+def func_get_login_info(str_fname, class_login_property):
     str_login_respons = func_read_from_file(str_fname)
     dic_login_respons = json.loads(str_login_respons)
-    my_login_property.sUrlRequest = dic_login_respons.get('sUrlRequest')                # request用仮想URL
-    my_login_property.sUrlMaster = dic_login_respons.get('sUrlMaster')                  # master用仮想URL
-    my_login_property.sUrlPrice = dic_login_respons.get('sUrlPrice')                    # price用仮想URL
-    my_login_property.sUrlEvent = dic_login_respons.get('sUrlEvent')                    # event用仮想URL
-    my_login_property.sUrlEventWebSocket = dic_login_respons.get('sUrlEventWebSocket')  # webxocket用仮想URL
-    my_login_property.sZyoutoekiKazeiC = dic_login_respons.get('sZyoutoekiKazeiC')      # 8.譲渡益課税区分    1：特定  3：一般  5：NISA     ログインの返信データで設定済み。 
-    my_login_property.sZyoutoekiKazeiC = dic_login_respons.get('sSinyouKouzaKubun')     # 信用取引口座開設区分  0：未開設  1：開設     ログインの返信データで設定済み。 
 
+    class_login_property.sResultCode = dic_login_respons.get('sResultCode')                 # 結果コード
+    class_login_property.sResultText = dic_login_respons.get('sResultText')                 # 結果テキスト
+    class_login_property.sZyoutoekiKazeiC = dic_login_respons.get('sZyoutoekiKazeiC')       # 譲渡益課税区分  1：特定  3：一般  5：NISA
+    class_login_property.sSecondPasswordOmit = dic_login_respons.get('sSecondPasswordOmit')     # 暗証番号省略有無Ｃ
+    class_login_property.sLastLoginDate = dic_login_respons.get('sLastLoginDate')               # 最終ログイン日時
+    class_login_property.sSogoKouzaKubun = dic_login_respons.get('sSogoKouzaKubun')             # 総合口座開設区分  0：未開設  1：開設
+    class_login_property.sHogoAdukariKouzaKubun = dic_login_respons.get('sHogoAdukariKouzaKubun')       # 保護預り口座開設区分  0：未開設  1：開設
+    class_login_property.sFurikaeKouzaKubun = dic_login_respons.get('sFurikaeKouzaKubun')               # 振替決済口座開設区分  0：未開設  1：開設
+    class_login_property.sGaikokuKouzaKubun = dic_login_respons.get('sGaikokuKouzaKubun')               # 外国口座開設区分  0：未開設  1：開設
+    class_login_property.sMRFKouzaKubun = dic_login_respons.get('sMRFKouzaKubun')                       # ＭＲＦ口座開設区分  0：未開設  1：開設
+    class_login_property.sTokuteiKouzaKubunGenbutu = dic_login_respons.get('sTokuteiKouzaKubunGenbutu') # 特定口座区分現物  0：一般  1：特定源泉徴収なし  2：特定源泉徴収あり
+    class_login_property.sTokuteiKouzaKubunSinyou = dic_login_respons.get('sTokuteiKouzaKubunSinyou')   # 特定口座区分信用  0：一般  1：特定源泉徴収なし  2：特定源泉徴収あり
+    class_login_property.sTokuteiKouzaKubunTousin = dic_login_respons.get('sTokuteiKouzaKubunTousin')   # 特定口座区分投信  0：一般  1：特定源泉徴収なし  2：特定源泉徴収あり
+    class_login_property.sTokuteiHaitouKouzaKubun = dic_login_respons.get('sTokuteiHaitouKouzaKubun')   # 配当特定口座区分  0：未開設  1：開設
+    class_login_property.sTokuteiKanriKouzaKubun = dic_login_respons.get('sTokuteiKanriKouzaKubun')     # 特定管理口座開設区分  0：未開設  1：開設
+    class_login_property.sSinyouKouzaKubun = dic_login_respons.get('sSinyouKouzaKubun')         # 信用取引口座開設区分  0：未開設  1：開設
+    class_login_property.sSinyouKouzaKubun = dic_login_respons.get('sSinyouKouzaKubun')         # 信用取引口座開設区分  0：未開設  1：開設
+    class_login_property.sSakopKouzaKubun = dic_login_respons.get('sSakopKouzaKubun')           # 先物ＯＰ口座開設区分  0：未開設  1：開設
+    class_login_property.sMMFKouzaKubun = dic_login_respons.get('sMMFKouzaKubun')               # ＭＭＦ口座開設区分  0：未開設  1：開設
+    class_login_property.sTyukokufKouzaKubun = dic_login_respons.get('sTyukokufKouzaKubun')     # 中国Ｆ口座開設区分  0：未開設  1：開設
+    class_login_property.sKawaseKouzaKubun = dic_login_respons.get('sKawaseKouzaKubun')         # 為替保証金口座開設区分  0：未開設  1：開設
+    class_login_property.sHikazeiKouzaKubun = dic_login_respons.get('sHikazeiKouzaKubun')       # 非課税口座開設区分  0：未開設  1：開設  ※ＮＩＳＡ口座の開設有無を示す。
+    class_login_property.sKinsyouhouMidokuFlg = dic_login_respons.get('sKinsyouhouMidokuFlg')   # 金商法交付書面未読フラグ  1：未読（標準Ｗｅｂを起動し書面確認実行必須）  0：既読  ※未読の場合、ｅ支店・ＡＰＩは利用不可のため    仮想ＵＲＬは発行されず""を設定。  ※既読の場合、ｅ支店・ＡＰＩは利用可能となり    仮想ＵＲＬを発行し設定。  
+    class_login_property.sUrlRequest = dic_login_respons.get('sUrlRequest')     # 仮想URL（REQUEST)  業務機能    （REQUEST I/F）仮想URL
+    class_login_property.sUrlMaster = dic_login_respons.get('sUrlMaster')       # 仮想URL（MASTER)  マスタ機能  （REQUEST I/F）仮想URL
+    class_login_property.sUrlPrice = dic_login_respons.get('sUrlPrice')         # 仮想URL（PRICE)  時価情報機能（REQUEST I/F）仮想URL
+    class_login_property.sUrlEvent = dic_login_respons.get('sUrlEvent')         # 仮想URL（EVENT)  注文約定通知（EVENT I/F）仮想URL
+    class_login_property.sUrlEventWebSocket = dic_login_respons.get('sUrlEventWebSocket')    # 仮想URL（EVENT-WebSocket)  注文約定通知（EVENT I/F WebSocket版）仮想URL
+    class_login_property.sUpdateInformWebDocument = dic_login_respons.get('sUpdateInformWebDocument')    # 交付書面更新予定日  標準Ｗｅｂの交付書面更新予定日決定後、該当日付を設定。  【注意】参照
+    class_login_property.sUpdateInformAPISpecFunction = dic_login_respons.get('sUpdateInformAPISpecFunction')    # ｅ支店・ＡＰＩリリース予定日  ｅ支店・ＡＰＩリリース予定日決定後、該当日付を設定。  【注意】参照
+    
 
 # 機能： p_noをファイルから取得する
 # 引数1: p_noを保存したファイル名（fname_info_p_no = "e_api_info_p_no.txt"）
@@ -348,6 +394,7 @@ def func_save_p_no(str_fname_output, int_p_no):
     print('ファイル名:', str_fname_output)
 
 #--- 以上 共通コード -------------------------------------------------
+
 
 # 機能: login用のAPI問合せ。
 # 返値: API応答（string型、json形式）
