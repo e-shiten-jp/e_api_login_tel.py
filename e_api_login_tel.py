@@ -35,7 +35,6 @@ import time
 #--- 共通コード ------------------------------------------------------
 
 # request項目を保存するクラス。配列として使う。
-# 'p_no'、'p_sd_date'は格納せず、func_make_url_requestで生成する。
 class class_req :
     def __init__(self) :
         self.str_key = ''
@@ -243,6 +242,29 @@ def func_read_from_file(str_fname):
         print(type(e))
 
 
+# 機能: class_req型データをjson形式の文字列に変換する。
+# 返値: json形式の文字
+# 第１引数： class_req型データ
+def func_make_json_format(work_class_req):
+    work_key = ''
+    work_value = ''
+    str_json_data =  '{\n\t'
+    for i in range(len(work_class_req)) :
+        work_key = func_strip_dquot(work_class_req[i].str_key)
+        if len(work_key) > 0:
+            if work_key[:1] == 'a' :
+                work_value = work_class_req[i].str_value
+                str_json_data = str_json_data + work_class_req[i].str_key \
+                                    + ':' + func_strip_dquot(work_value) \
+                                    + ',\n\t'
+            else :
+                work_value = func_check_json_dquat(work_class_req[i].str_value)
+                str_json_data = str_json_data + func_check_json_dquat(work_class_req[i].str_key) \
+                                    + ':' + work_value \
+                                    + ',\n\t'
+    str_json_data = str_json_data[:-3] + '\n}'
+    return str_json_data
+
 
 # 機能： API問合せ文字列を作成し返す。
 # 戻り値： api問合せのurl文字列
@@ -285,18 +307,6 @@ def func_api_req(str_url):
     json_req = json.loads(str_shiftjis)
 
     return json_req
-
-
-# 機能: class_req型データをjson形式の文字列に変換する。
-# 返値: json形式の文字
-# 第１引数： class_req型データ
-def func_make_json_format(work_class_req):
-    str_json_data =  '{\n\t'
-    for i in range(len(work_class_req)) :
-        if len(work_class_req[i].str_key) > 0:
-            str_json_data = str_json_data + work_class_req[i].str_key + ':' + work_class_req[i].str_value + ',\n\t'
-    str_json_data = str_json_data[:-3] + '\n}'
-    return str_json_data
 
 
 # 機能： アカウント情報をファイルから取得する
@@ -394,6 +404,7 @@ def func_save_p_no(str_fname_output, int_p_no):
     print('ファイル名:', str_fname_output)
 
 #--- 以上 共通コード -------------------------------------------------
+
 
 
 # 機能: login用のAPI問合せ。
@@ -505,13 +516,16 @@ if __name__ == "__main__":
     # 以下、ログインの判定とログイン情報の保存 ------------
     int_p_errno = int(dic_return.get('p_errno'))
     # p_erronは、マニュアル「立花証券・ｅ支店・ＡＰＩ（ｖ〇ｒ〇）、REQUEST I/F、利用方法、データ仕様」を参照ください。
-    if int_p_errno >= 0 :
+    
+    if dic_return.get('sResultCode') is not None:
+        # sResultCodeは、マニュアル
+        # 「立花証券・ｅ支店・ＡＰＩ（ｖ〇ｒ〇）、REQUEST I/F、注文入力機能引数項目仕様」
+        # (api_request_if_order_vOrO.pdf)
+        # の p13/42 「6.メッセージ一覧」を参照ください。
         int_sResultCode = int(dic_return.get('sResultCode'))
-    # sResultCodeは、マニュアル
-    # 「立花証券・ｅ支店・ＡＰＩ（ｖ〇ｒ〇）、REQUEST I/F、注文入力機能引数項目仕様」
-    # (api_request_if_order_vOrO.pdf)
-    # の p13/42 「6.メッセージ一覧」を参照ください。
-
+    else:
+        int_sResultCode = -9999
+    
 
     if int_p_errno ==  0 and int_sResultCode == 0:    # ログインエラーでない場合
         # ---------------------------------------------
