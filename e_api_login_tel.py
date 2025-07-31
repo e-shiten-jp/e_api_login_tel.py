@@ -3,27 +3,33 @@
 
 # 2021.06.24,   yo.
 # 2022.10.20 reviced,   yo.
-# 2025.07.25 reviced,   yo.
-
-# Python 3.11.2 / debian12
-# API v4r7 で動作確認
+# 2025.07.27 reviced,   yo.
+#
 # 立花証券ｅ支店ＡＰＩ利用のサンプルコード
-# ログインして、仮想URL（1日券）を取得します。
+#
+# 動作確認
+# Python 3.11.2 / debian12
+# API v4r7
+#
+# 機能: ログインして、仮想URL（1日券）を取得します。
 #
 # 利用方法: 
 # 設定ファイル： e_api_account_info.txt
-# ユーザーID、パスワード等を設定してから、同じディレクトリでこのプログラムを走らせてください。
+# ユーザーID、パスワード等を設定してから、
+# 同じディレクトリで、このプログラムを走らせてください。
+# 
 # 
 # 取得した仮想urlは、fname_login_response（ = "e_api_login_response.txt"）で
-# 定義した同じディレクトリのファイルに保存します。
+# 定義したファイルに保存します。
 #
-# p_noは、fname_info_p_no（ = "e_api_info_p_no.txt"）で定義した
-# 同じディレクトリのファイルに保存します。
+# p_noは、fname_info_p_no（ = "e_api_info_p_no.txt"）で定義したファイルに
+# 保存します。
 #
 # == ご注意: ========================================
 #   本番環境にに接続した場合、実際に市場に注文が出ます。
 #   市場で約定した場合取り消せません。
 # ==================================================
+#
 #
 
 import urllib3
@@ -238,7 +244,7 @@ def func_read_from_file(str_fname):
                 str_read = str_read + line
         return str_read
     except IOError as e:
-        print('Can not Write!!!')
+        print('ファイルを読み込めません!!! ファイル名：',str_fname)
         print(type(e))
 
 
@@ -386,7 +392,7 @@ def func_write_to_file(str_fname_output, str_data):
         with open(str_fname_output, 'w', encoding = 'utf-8') as fout:
             fout.write(str_data)
     except IOError as e:
-        print('Can not Write!!!')
+        print('ファイルに書き込めません!!!  ファイル名：',str_fname_output)
         print(type(e))
 
 
@@ -434,7 +440,7 @@ def func_api_req_login(str_url):
 # ======================================================================================================
 
 if __name__ == "__main__":
-    # --- ファイル名等を設定（実行ファイルと同じディレクトリ）----------------------------------------
+    # --- ファイル名等を設定 ------------------------------------------------------------------
     fname_account_info = "e_api_account_info.txt"
     fname_login_response = "e_api_login_response.txt"
     fname_info_p_no = "e_api_info_p_no.txt"
@@ -536,9 +542,6 @@ if __name__ == "__main__":
         # sUrlRequest=""、sUrlEvent="" が返されログインできない。
         # ---------------------------------------------
         if len(dic_return.get('sUrlRequest')) > 0 :
-            # ログイン属性クラスに取得した値をセット
-            my_account_property.login_status = True           # login状態 true
-
             # "p_no"を保存する。
             func_save_p_no(fname_info_p_no, my_login_property.p_no)
             
@@ -547,10 +550,8 @@ if __name__ == "__main__":
             print('loginレスポンスを保存しました。\tファイル名: ', fname_login_response )
         else :
             print('契約締結前書面が未読です。')
-            print('ブラウザーで標準Webにログインして確認してください。')
-            my_account_property.login_status = False       # login状態 false
+            print('ブラウザーで標準Webにログインして確認してください。')            
     else :  # ログインに問題があった場合
-        my_account_property.login_status = False           # login状態 false
         print("ログインに失敗しました。")# システム時刻を所定の書式で取得
         print('p_errno:', dic_return.get('p_errno'))
         print('p_err:', dic_return.get('p_err'))
